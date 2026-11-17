@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Agenda da Laylla ✨</title>
+  
+  <!-- Favicon & PWA Theme -->
+  <meta name="theme-color" content="#D7BDB0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <!-- Google Fonts: Plus Jakarta Sans + Playfair Display for luxury aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- App Container (Responsive wrapper: Phone, Tablet & Desktop) -->
+  <div class="app-layout">
+    <div class="app-frame">
+      
+      <!-- Sidebar on Desktop/Tablet & Top Header on Mobile -->
+      <aside class="app-sidebar-header">
+        
+        <!-- Profile info & Avatar -->
+        <div class="profile-card">
+          <div class="avatar-wrapper">
+            <div class="avatar-ring">
+              <img id="user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23E3D5CA'/%3E%3Cpath d='M50 48c7.7 0 14-6.3 14-14s-6.3-14-14-14-14 6.3-14 14 6.3 14 14 14zm0 6c-11.7 0-26 5.8-26 17.5V78h52v-6.5C76 59.8 61.7 54 50 54z' fill='%23D7BDB0'/%3E%3Ctext x='50' y='65' font-size='22' text-anchor='middle' fill='%235A4A42'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E" alt="Foto da Laylla">
+            </div>
+            <label for="avatar-input" class="change-photo-badge" title="Mudar minha foto">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            </label>
+            <input type="file" id="avatar-input" accept="image/*" style="display:none;">
+          </div>
+
+          <div class="user-info">
+            <div class="greeting-row">
+              <span class="greeting-badge">Minha Agenda</span>
+              <span class="date-chip" id="header-today-date">Segunda, 17 Nov</span>
+            </div>
+            <h1 class="user-name" id="user-display-name">Olá, Laylla ✨</h1>
+            <p class="user-status" id="user-status-text" title="Clique para editar frase">
+              "Hoje é um dia lindo para brilhar 🌸"
+            </p>
+          </div>
+
+          <button class="icon-btn header-settings-btn" id="open-settings-btn" title="Configurações">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </button>
+        </div>
+
+        <!-- Quick Mood Pill Bar -->
+        <div class="mood-selector-container">
+          <span class="mood-label">Humor de hoje:</span>
+          <div class="mood-pills">
+            <button class="mood-pill active" data-mood="Radiante ✨">✨ Radiante</button>
+            <button class="mood-pill" data-mood="Tranquila ☁️">☁️ Zen</button>
+            <button class="mood-pill" data-mood="Dengosa 🐱">🐱 Dengosa</button>
+            <button class="mood-pill" data-mood="Produtiva 🌸">🌸 Focada</button>
+            <button class="mood-pill" data-mood="Com soninho 💤">💤 Preguicinha</button>
+          </div>
+        </div>
+
+        <!-- Sidebar Navigation (Desktop & Tablet only) -->
+        <nav class="desktop-sidebar-nav">
+          <button class="nav-tab active" data-target="view-calendar">
+            <div class="tab-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="3" ry="3"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </div>
+            <span class="tab-text">Agenda & Calendário</span>
+          </button>
+
+          <button class="nav-tab" data-target="view-tasks">
+            <div class="tab-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            </div>
+            <span class="tab-text">Tarefas & Listas</span>
+          </button>
+
+          <button class="nav-tab" data-target="view-habits">
+            <div class="tab-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+            </div>
+            <span class="tab-text">Hábitos & Treino</span>
+          </button>
+
+          <button class="nav-tab" data-target="view-notes">
+            <div class="tab-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+            </div>
+            <span class="tab-text">Caderninho de Notas</span>
+          </button>
+        </nav>
+
+        <!-- Sidebar footer shortcuts (Desktop / Tablet) -->
+        <div class="sidebar-desktop-footer">
+          <button class="sidebar-quick-btn" id="sidebar-quick-event">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Novo Compromisso</span>
+          </button>
+          <div class="sidebar-meta-text">
+            <span>Agenda Pessoal da Laylla 💕</span>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Main Workspace Container -->
+      <div class="app-content-body">
+        
+        <!-- Main Content Views -->
+        <main class="app-main">
+          
+          <!-- ================= VIEW 1: CALENDAR ================= -->
+          <section id="view-calendar" class="view-panel active">
+            <div class="calendar-view-split">
+              
+              <!-- Left Column: Full Month Calendar -->
+              <div class="glass-card calendar-card">
+                <div class="cal-header">
+                  <button class="cal-nav-btn" id="prev-month-btn" aria-label="Mês anterior">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  </button>
+                  <div class="cal-title-wrapper">
+                    <h2 id="cal-month-year" class="cal-month-title">Novembro 2026</h2>
+                    <button id="cal-today-shortcut" class="today-tag">Ir para hoje</button>
+                  </div>
+                  <button class="cal-nav-btn" id="next-month-btn" aria-label="Próximo mês">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </button>
+                </div>
+
+                <!-- Days of Week Header -->
+                <div class="cal-weekdays">
+                  <span>Dom</span>
+                  <span>Seg</span>
+                  <span>Ter</span>
+                  <span>Qua</span>
+                  <span>Qui</span>
+                  <span>Sex</span>
+                  <span>Sáb</span>
+                </div>
+
+                <!-- Calendar Days Grid -->
+                <div class="cal-grid" id="calendar-days-grid">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+
+              <!-- Right Column: Schedule for Selected Day -->
+              <div class="schedule-section">
+                <div class="section-title-row">
+                  <div>
+                    <h3 class="section-title" id="selected-day-title">Compromissos do Dia</h3>
+                    <span class="section-subtitle" id="selected-day-subtitle">Selecione uma data</span>
+                  </div>
+                  <button class="add-event-btn" id="open-add-event-modal">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span>Novo</span>
+                  </button>
+                </div>
+
+                <!-- Event Cards List -->
+                <div class="events-list" id="events-container">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ================= VIEW 2: TASKS & CHECKLISTS ================= -->
+          <section id="view-tasks" class="view-panel">
+            <div class="tasks-view-split">
+              
+              <!-- Left Column: Progress & Quick Add -->
+              <div class="tasks-side-column">
+                <div class="tasks-hero-card">
+                  <div class="tasks-progress-info">
+                    <h3>Minhas Listinhas 📝</h3>
+                    <p id="tasks-progress-summary">2 de 4 tarefas concluídas</p>
+                  </div>
+                  <div class="progress-bar-track">
+                    <div class="progress-bar-fill" id="tasks-progress-bar" style="width: 50%;"></div>
+                  </div>
+                </div>
+
+                <!-- Quick Add Task -->
+                <div class="quick-add-task-box">
+                  <input type="text" id="quick-task-input" placeholder="O que você precisa fazer, gatinha?">
+                  <div class="quick-add-actions">
+                    <select id="quick-task-category">
+                      <option value="hoje">🌸 Hoje</option>
+                      <option value="treino">🏋️‍♀️ Academia & Treino</option>
+                      <option value="amor">💖 Amor & Mimos</option>
+                      <option value="estudo">💻 Estudo / Trabalho</option>
+                      <option value="compras">🛍️ Comprinhas</option>
+                      <option value="saude">🩺 Saúde & Pet</option>
+                    </select>
+                    <button id="quick-task-btn" class="pill-btn primary" title="Adicionar tarefa">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <span>Adicionar</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Task Filter Chips -->
+                <div class="filter-chips">
+                  <button class="filter-chip active" data-filter="all">Todas</button>
+                  <button class="filter-chip" data-filter="hoje">🌸 Hoje</button>
+                  <button class="filter-chip" data-filter="pending">Pendentes</button>
+                  <button class="filter-chip" data-filter="done">Concluídas</button>
+                </div>
+              </div>
+
+              <!-- Right Column: Task Items List -->
+              <div class="tasks-main-column">
+                <div class="task-list" id="tasks-container">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ================= VIEW 3: HABITS & SELF-CARE ================= -->
+          <section id="view-habits" class="view-panel">
+            <div class="habits-header-card">
+              <h3>Auto-cuidado, Hábitos & Treino 🧖‍♀️🏋️‍♀️</h3>
+              <p>Cuidando do corpo, da mente e da saúde da gatinha todos os dias.</p>
+            </div>
+
+            <div class="habits-view-split">
+              
+              <!-- Left Column: Water & Self-care -->
+              <div class="habits-left-column">
+                <!-- Water Tracker -->
+                <div class="habit-widget water-widget">
+                  <div class="habit-widget-top">
+                    <div class="habit-info">
+                      <h4>Hidratação da Gatinha 💧</h4>
+                      <p id="water-intake-counter">Meta: 2000ml (0/8 copos)</p>
+                    </div>
+                    <button class="small-text-btn" id="reset-water-btn">Zerar hoje</button>
+                  </div>
+                  <div class="water-glasses-row" id="water-glasses-grid">
+                    <!-- 8 cute glasses rendered dynamically -->
+                  </div>
+                </div>
+
+                <!-- Self-care Checklist -->
+                <div class="habit-widget">
+                  <div class="habit-widget-top">
+                    <div class="habit-info">
+                      <h4>Checklist de Bem-estar ✨</h4>
+                      <p>Rituais diários de carinho</p>
+                    </div>
+                  </div>
+                  <div class="self-care-checklist" id="selfcare-list">
+                    <!-- Dynamically populated checklist -->
+                  </div>
+                </div>
+
+                <!-- Sweet Daily Affirmation -->
+                <div class="affirmation-card">
+                  <div class="quote-icon">❝</div>
+                  <p id="daily-affirmation-text">Você é especial, inteligente, linda e capaz de conquistar tudo o que sonhar hoje!</p>
+                  <span class="affirmation-author">Com todo amor 💕</span>
+                </div>
+              </div>
+
+              <!-- Right Column: Gym & Workout Checklist -->
+              <div class="habits-right-column">
+                <div class="habit-widget gym-widget">
+                  <div class="habit-widget-top">
+                    <div class="habit-info">
+                      <h4>Checklist de Academia & Treino 🏋️‍♀️✨</h4>
+                      <p id="gym-streak-summary">Meta: 4 treinos na semana (1/4 concluídos)</p>
+                    </div>
+                    <span class="gym-badge-tag">Gatinha Fitness 🔥</span>
+                  </div>
+
+                  <!-- Foco do Treino de Hoje -->
+                  <div class="gym-section-block">
+                    <span class="gym-block-label">Foco do Treino de Hoje:</span>
+                    <div class="gym-focus-chips" id="gym-focus-chips">
+                      <button class="gym-chip active" data-focus="Inferiores & Glúteos 🍑">🍑 Glúteos & Pernas</button>
+                      <button class="gym-chip" data-focus="Superiores & Costas ✨">✨ Superiores & Costas</button>
+                      <button class="gym-chip" data-focus="Cardio & Abdômen 🏃‍♀️">🏃‍♀️ Cardio & Abdômen</button>
+                      <button class="gym-chip" data-focus="Yoga & Alongamento 🌸">🌸 Yoga & Alongamento</button>
+                      <button class="gym-chip" data-focus="Descanso Merecido ☁️">☁️ Rest Day</button>
+                    </div>
+                  </div>
+
+                  <!-- Frequência Semanal (S, T, Q, Q, S, S, D) -->
+                  <div class="gym-section-block">
+                    <div class="gym-week-header">
+                      <span class="gym-block-label">Frequência da Semana:</span>
+                      <button class="small-text-btn" id="reset-gym-week-btn">Limpar semana</button>
+                    </div>
+                    <div class="gym-week-days" id="gym-week-tracker">
+                      <!-- 7 circular buttons rendered via JS -->
+                    </div>
+                  </div>
+
+                  <!-- Checklist de Treino -->
+                  <div class="gym-section-block">
+                    <span class="gym-block-label">Checklist de Academia:</span>
+                    <div class="gym-checklist-items" id="gym-checklist-container">
+                      <!-- Rendered via JS -->
+                    </div>
+                  </div>
+
+                  <!-- Adicionar item personalizado de treino -->
+                  <div class="gym-add-item-box">
+                    <input type="text" id="gym-new-item-input" placeholder="Novo exercício ou item da mochila...">
+                    <button class="pill-btn primary small" id="gym-add-item-btn">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <span>Adicionar</span>
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ================= VIEW 4: DIARY & NOTES ================= -->
+          <section id="view-notes" class="view-panel">
+            <div class="notes-header-row">
+              <div>
+                <h3>Caderninho de Ideias 📔</h3>
+                <p>Pensamentos, lembretes e momentos fofos</p>
+              </div>
+              <button class="add-event-btn" id="open-add-note-modal">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Anotar</span>
+              </button>
+            </div>
+
+            <div class="notes-grid" id="notes-container">
+              <!-- Notes rendered dynamically -->
+            </div>
+          </section>
+
+        </main>
+
+        <!-- Bottom Floating App Navigation Bar (Mobile view) -->
+        <nav class="app-bottom-nav">
+          <button class="nav-tab active" data-target="view-calendar">
+            <div class="tab-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="3" ry="3"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </div>
+            <span class="tab-text">Agenda</span>
+          </button>
+
+          <button class="nav-tab" data-target="view-tasks">
+            <div class="tab-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            </div>
+            <span class="tab-text">Tarefas</span>
+          </button>
+
+          <button class="nav-tab" data-target="view-habits">
+            <div class="tab-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+            </div>
+            <span class="tab-text">Hábitos</span>
+          </button>
+
+          <button class="nav-tab" data-target="view-notes">
+            <div class="tab-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+            </div>
+            <span class="tab-text">Caderno</span>
+          </button>
+        </nav>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- Modal 1: Adicionar Evento no Calendário -->
+  <div class="modal-backdrop" id="modal-event" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-event-title">Novo Compromisso</h3>
+        <button class="close-modal-btn" data-close="modal-event">&times;</button>
+      </div>
+      <form id="form-event" class="modal-form">
+        <div class="form-group">
+          <label for="event-title-input">O que vamos fazer?</label>
+          <input type="text" id="event-title-input" placeholder="Ex: Spa day, Consulta, Almoço gostoso..." required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="event-date-input">Data</label>
+            <input type="date" id="event-date-input" required>
+          </div>
+          <div class="form-group">
+            <label for="event-time-input">Horário</label>
+            <input type="time" id="event-time-input" value="14:00">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Categoria</label>
+          <div class="category-radio-group">
+            <label class="cat-pill">
+              <input type="radio" name="event-cat" value="🌸 Auto-cuidado" checked>
+              <span>🌸 Auto-cuidado</span>
+            </label>
+            <label class="cat-pill">
+              <input type="radio" name="event-cat" value="🏋️‍♀️ Treino / Academia">
+              <span>🏋️‍♀️ Treino</span>
+            </label>
+            <label class="cat-pill">
+              <input type="radio" name="event-cat" value="💖 Encontro / Date">
+              <span>💖 Encontro</span>
+            </label>
+            <label class="cat-pill">
+              <input type="radio" name="event-cat" value="💻 Trabalho / Estudo">
+              <span>💻 Estudos</span>
+            </label>
+            <label class="cat-pill">
+              <input type="radio" name="event-cat" value="🐾 Pet / Saúde">
+              <span>🐾 Pet & Saúde</span>
+            </label>
+            <label class="cat-pill">
+              <input type="radio" name="event-cat" value="🛍️ Compras & Lazer">
+              <span>🛍️ Lazer</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="event-notes-input">Observações / Detalhes</label>
+          <textarea id="event-notes-input" rows="2" placeholder="Ex: Levar protetor solar, roupas confortáveis..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="pill-btn secondary" data-close="modal-event">Cancelar</button>
+          <button type="submit" class="pill-btn primary">Salvar na Agenda</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Adicionar Nota / Diário -->
+  <div class="modal-backdrop" id="modal-note" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Nova Anotação 📝</h3>
+        <button class="close-modal-btn" data-close="modal-note">&times;</button>
+      </div>
+      <form id="form-note" class="modal-form">
+        <div class="form-group">
+          <label for="note-title-input">Título da Nota</label>
+          <input type="text" id="note-title-input" placeholder="Ex: Ideias de presentes, Filmes pra ver..." required>
+        </div>
+
+        <div class="form-group">
+          <label for="note-color-select">Cor do Papel</label>
+          <div class="note-color-picker">
+            <label class="color-dot" style="background:#F5EBE1;"><input type="radio" name="note-bg" value="#F5EBE1" checked></label>
+            <label class="color-dot" style="background:#E3D5CA;"><input type="radio" name="note-bg" value="#E3D5CA"></label>
+            <label class="color-dot" style="background:#D7BDB0;"><input type="radio" name="note-bg" value="#D7BDB0"></label>
+            <label class="color-dot" style="background:#D6CCC2;"><input type="radio" name="note-bg" value="#D6CCC2"></label>
+            <label class="color-dot" style="background:#EDEEE9;"><input type="radio" name="note-bg" value="#EDEEE9"></label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="note-content-input">Conteúdo</label>
+          <textarea id="note-content-input" rows="4" placeholder="Escreva aqui tudo o que vier ao coração..." required></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="pill-btn secondary" data-close="modal-note">Cancelar</button>
+          <button type="submit" class="pill-btn primary">Guardar Nota</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Configurações & Personalização do Perfil -->
+  <div class="modal-backdrop" id="modal-settings" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Personalizar Agenda ⚙️</h3>
+        <button class="close-modal-btn" data-close="modal-settings">&times;</button>
+      </div>
+      <form id="form-settings" class="modal-form">
+        <div class="form-group">
+          <label for="settings-name-input">Nome da Gatinha</label>
+          <input type="text" id="settings-name-input" value="Laylla">
+        </div>
+
+        <div class="form-group">
+          <label for="settings-status-input">Frase / Mensagem de Boas-vindas</label>
+          <input type="text" id="settings-status-input" value="Hoje é um dia lindo para brilhar 🌸">
+        </div>
+
+        <div class="form-group photo-upload-option">
+          <label>Foto de Perfil</label>
+          <div class="photo-upload-actions">
+            <button type="button" class="pill-btn secondary small" id="trigger-file-upload">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              Escolher foto do aparelho
+            </button>
+            <button type="button" class="pill-btn text small" id="remove-custom-photo">Restaurar padrão</button>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="form-group">
+          <label>Backup e Dados</label>
+          <p class="field-hint">Tudo fica salvo direto no seu celular/computador/tablet, sem login nem senha!</p>
+          <div class="backup-actions">
+            <button type="button" class="pill-btn secondary small" id="export-data-btn">Exportar dados (Backup)</button>
+            <button type="button" class="pill-btn secondary small" id="import-data-trigger">Importar dados</button>
+            <input type="file" id="import-data-input" accept=".json" style="display:none;">
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="pill-btn secondary" data-close="modal-settings">Fechar</button>
+          <button type="submit" class="pill-btn primary">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification element -->
+  <div class="toast-notification" id="app-toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
