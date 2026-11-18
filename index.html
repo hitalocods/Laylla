@@ -2,12 +2,17 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agenda da Laylla ✨</title>
   
   <!-- Favicon & PWA Theme -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="theme-color" content="#44142C">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Agenda Laylla">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   
   <!-- Google Fonts: Plus Jakarta Sans + Playfair Display for luxury aesthetic -->
@@ -455,14 +460,15 @@
     </div>
   </div>
 
-  <!-- Modal 2: Adicionar Nota / Diário -->
+  <!-- Modal 2: Adicionar ou Editar Nota / Diário -->
   <div class="modal-backdrop" id="modal-note" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3>Nova Anotação 📝</h3>
+        <h3 id="modal-note-title">Nova Anotação 📝</h3>
         <button class="close-modal-btn" data-close="modal-note">&times;</button>
       </div>
       <form id="form-note" class="modal-form">
+        <input type="hidden" id="note-edit-id" value="">
         <div class="form-group">
           <label for="note-title-input">Título da Nota</label>
           <input type="text" id="note-title-input" placeholder="Ex: Ideias de presentes, Filmes pra ver..." required>
@@ -486,7 +492,7 @@
 
         <div class="modal-actions">
           <button type="button" class="pill-btn secondary" data-close="modal-note">Cancelar</button>
-          <button type="submit" class="pill-btn primary">Guardar Nota</button>
+          <button type="submit" class="pill-btn primary" id="note-submit-btn">Guardar Nota ✨</button>
         </div>
       </form>
     </div>
@@ -510,6 +516,57 @@
           <input type="text" id="settings-status-input" value="Hoje é um dia lindo para brilhar 🌸">
         </div>
 
+        <!-- Seletor de Tema -->
+        <div class="form-group">
+          <label>Tema da Agenda</label>
+          <div class="theme-cards-picker">
+            <label class="theme-card-option" data-theme-val="nude">
+              <input type="radio" name="settings-theme" value="nude" checked>
+              <div class="theme-card-preview theme-nude-preview">
+                <div class="theme-swatch-bar">
+                  <span style="background:#D7BDB0;"></span>
+                  <span style="background:#E3D5CA;"></span>
+                  <span style="background:#F5EBE1;"></span>
+                </div>
+                <div class="theme-card-info">
+                  <strong>🌸 Nude & Rosé</strong>
+                  <small>Claro, delicado e acolhedor</small>
+                </div>
+              </div>
+            </label>
+
+            <label class="theme-card-option" data-theme-val="wine">
+              <input type="radio" name="settings-theme" value="wine">
+              <div class="theme-card-preview theme-wine-preview">
+                <div class="theme-swatch-bar">
+                  <span style="background:#0C0C14;"></span>
+                  <span style="background:#44142C;"></span>
+                  <span style="background:#642444;"></span>
+                </div>
+                <div class="theme-card-info">
+                  <strong>🍷 Dark Wine & Plum</strong>
+                  <small>Escuro, premium e marcante</small>
+                </div>
+              </div>
+            </label>
+
+            <label class="theme-card-option" data-theme-val="ruby">
+              <input type="radio" name="settings-theme" value="ruby">
+              <div class="theme-card-preview theme-ruby-preview">
+                <div class="theme-swatch-bar">
+                  <span style="background:#080002;"></span>
+                  <span style="background:#800014;"></span>
+                  <span style="background:#E61937;"></span>
+                </div>
+                <div class="theme-card-info">
+                  <strong>💎 Ruby Glass</strong>
+                  <small>Efeito vidro, preto & rubi vibrante</small>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <div class="form-group photo-upload-option">
           <label>Foto de Perfil</label>
           <div class="photo-upload-actions">
@@ -518,6 +575,54 @@
               Escolher foto do aparelho
             </button>
             <button type="button" class="pill-btn text small" id="remove-custom-photo">Restaurar padrão</button>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Lembretes & Notificações de Compromissos -->
+        <div class="form-group settings-section-box">
+          <div class="settings-box-header">
+            <div>
+              <label class="settings-box-title">Lembretes & Notificações 🔔</label>
+              <p class="field-hint">Avisar no celular/computador no horário dos compromissos</p>
+            </div>
+            <label class="toggle-switch" title="Ativar ou desativar lembretes">
+              <input type="checkbox" id="settings-notifications-toggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div id="notification-status-badge" class="notification-badge-row">
+            <span id="notification-status-icon">⚪</span>
+            <span id="notification-status-text">Notificações desativadas</span>
+          </div>
+          <button type="button" class="pill-btn secondary small" id="test-notification-btn" style="width: 100%; margin-top: 4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            Testar Lembrete Agora ✨
+          </button>
+        </div>
+
+        <!-- Instalar App no Celular (PWA) -->
+        <div class="form-group settings-section-box install-app-box">
+          <div class="settings-box-header">
+            <div>
+              <label class="settings-box-title">Instalar na Tela do Celular 📲</label>
+              <p class="field-hint">Adicione como aplicativo na sua tela de início, em tela cheia!</p>
+            </div>
+          </div>
+          <button type="button" class="pill-btn primary" id="install-pwa-btn" style="width: 100%; margin-top: 6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+            <span>Instalar Aplicativo 📲</span>
+          </button>
+
+          <!-- Dica especial para iOS / iPhone -->
+          <div id="ios-install-hint" class="ios-install-card">
+            <div class="ios-hint-title">
+              <span>🍎 No iPhone / iPad:</span>
+            </div>
+            <p>1. Toque no ícone de <strong>Compartilhar</strong> (quadrado com seta ⬆️ no Safari).</p>
+            <p>2. Role a lista e escolha <strong>"Adicionar à Tela de Início"</strong> ➕.</p>
+            <p>3. Toque em <strong>"Adicionar"</strong> e prontinho, o app estará na sua tela inicial! 💕</p>
           </div>
         </div>
 

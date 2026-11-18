@@ -21,8 +21,15 @@ async function initDB() {
         status TEXT DEFAULT 'Hoje é um dia lindo para brilhar 🌸',
         avatar TEXT,
         mood VARCHAR(50) DEFAULT 'Radiante ✨',
+        theme VARCHAR(50) DEFAULT 'nude',
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+
+    // Ensure theme and notifications columns exist if table was created previously
+    await client.query(`
+      ALTER TABLE laylla_profile ADD COLUMN IF NOT EXISTS theme VARCHAR(50) DEFAULT 'nude';
+      ALTER TABLE laylla_profile ADD COLUMN IF NOT EXISTS notifications_enabled BOOLEAN DEFAULT FALSE;
     `);
 
     // Create Events Table

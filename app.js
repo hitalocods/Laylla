@@ -17,8 +17,75 @@ const DEFAULT_PROFILE = {
   name: 'Laylla',
   status: 'Hoje é um dia lindo para brilhar 🌸',
   avatar: null, // null defaults to cute SVG avatar
-  mood: 'Radiante ✨'
+  mood: 'Radiante ✨',
+  theme: 'nude',
+  notificationsEnabled: false
 };
+
+// --- THEME MANAGEMENT ---
+const THEME_NOTE_COLORS = {
+  nude: ['#F5EBE1', '#E3D5CA', '#D7BDB0', '#D6CCC2', '#EDEEE9'],
+  wine: ['#2D1328', '#44142C', '#5A1B3A', '#1C0D1A', '#381428'],
+  ruby: ['#3D050D', '#5E0815', '#850C1F', '#220307', '#4E0611']
+};
+
+function applyTheme(themeName) {
+  if (!['nude', 'wine', 'ruby'].includes(themeName)) {
+    themeName = 'nude';
+  }
+  document.documentElement.setAttribute('data-theme', themeName);
+  try {
+    localStorage.setItem('laylla_theme', themeName);
+  } catch (e) {}
+
+  let metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (!metaTheme) {
+    metaTheme = document.createElement('meta');
+    metaTheme.name = 'theme-color';
+    document.head.appendChild(metaTheme);
+  }
+  const themeColors = {
+    nude: '#D7BDB0',
+    wine: '#0C0C14',
+    ruby: '#080002'
+  };
+  metaTheme.content = themeColors[themeName] || '#D7BDB0';
+
+  const radio = document.querySelector(`input[name="settings-theme"][value="${themeName}"]`);
+  if (radio && !radio.checked) {
+    radio.checked = true;
+  }
+
+  updateNoteColorPicker(themeName);
+  if (typeof renderNotesUI === 'function') {
+    renderNotesUI();
+  }
+}
+
+function updateNoteColorPicker(themeName) {
+  const container = document.querySelector('.note-color-picker');
+  if (!container) return;
+
+  const colors = THEME_NOTE_COLORS[themeName] || THEME_NOTE_COLORS.nude;
+  const currentChecked = container.querySelector('input[name="note-bg"]:checked')?.value;
+
+  container.innerHTML = colors.map((c, i) => {
+    const isChecked = currentChecked ? currentChecked === c : i === 0;
+    return `
+      <label class="color-dot" style="background:${c};">
+        <input type="radio" name="note-bg" value="${c}" ${isChecked ? 'checked' : ''}>
+      </label>
+    `;
+  }).join('');
+}
+
+// Immediate theme bootstrap to prevent flash of wrong theme
+(function() {
+  try {
+    const savedTheme = localStorage.getItem('laylla_theme') || 'nude';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  } catch (e) {}
+})();
 
 const DEFAULT_EVENTS = [
   {
@@ -270,6 +337,9 @@ const api = {
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
+  const currentTheme = state.profile.theme || localStorage.getItem('laylla_theme') || 'nude';
+  applyTheme(currentTheme);
+
   initProfile();
   initCalendar();
   initTasks();
@@ -278,6 +348,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   initModals();
   initBackup();
+  initNotifications();
+  initPWAInstall();
+  registerServiceWorker();
 
   // Sync with Neon PostgreSQL & Vercel Blob in background
   syncWithBackend();
@@ -292,6 +365,16 @@ async function syncWithBackend() {
     state.profile.name = remote.profile.name || state.profile.name;
     state.profile.status = remote.profile.status || state.profile.status;
     state.profile.mood = remote.profile.mood || state.profile.mood;
+    if (remote.profile.theme) {
+      state.profile.theme = remote.profile.theme;
+      applyTheme(state.profile.theme);
+    }
+    if (remote.profile.notificationsEnabled !== undefined) {
+      state.profile.notificationsEnabled = remote.profile.notificationsEnabled;
+      const toggle = document.getElementById('settings-notifications-toggle');
+      if (toggle) toggle.checked = !!state.profile.notificationsEnabled;
+      if (typeof updateNotificationStatus === 'function') updateNotificationStatus();
+    }
     if (remote.profile.avatar) {
       state.profile.avatar = '/api/avatar';
     }
@@ -414,6 +497,12 @@ function initProfile() {
 
   // Click on status to quickly edit
   statusText.addEventListener('click', () => {
+    document.getElementById('settings-name-input').value = state.profile.name || 'Laylla';
+    document.getElementById('settings-status-input').value = state.profile.status || '';
+    const currentTheme = state.profile.theme || localStorage.getItem('laylla_theme') || 'nude';
+    const themeRadio = document.querySelector(`input[name="settings-theme"][value="${currentTheme}"]`);
+    if (themeRadio) themeRadio.checked = true;
+    if (typeof updateNotificationStatus === 'function') updateNotificationStatus();
     openModal('modal-settings');
   });
 
@@ -1048,6 +1137,44 @@ function initHabits() {
 // ==========================================
 // 5. NOTES & DIARY
 // ==========================================
+let renderNotesUI = null;
+
+function isColorDark(color) {
+  if (!color) return false;
+  color = color.trim().toLowerCase();
+  if (color.startsWith('rgba') || color.startsWith('rgb')) {
+    const nums = color.match(/\d+/g);
+    if (nums && nums.length >= 3) {
+      const r = parseInt(nums[0]), g = parseInt(nums[1]), b = parseInt(nums[2]);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      return brightness < 155;
+    }
+  }
+  if (color.startsWith('#')) {
+    let hex = color.replace('#', '');
+    if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness < 155;
+  }
+  return false;
+}
+
+function resolveNoteColor(note, currentTheme) {
+  if (!note.color || note.color === '#F5EBE1' || note.color === '#E3D5CA') {
+    if (currentTheme === 'ruby') {
+      return note.color === '#E3D5CA' ? '#5E0815' : '#3D050D';
+    }
+    if (currentTheme === 'wine') {
+      return note.color === '#E3D5CA' ? '#44142C' : '#2D1328';
+    }
+    return note.color || '#F5EBE1';
+  }
+  return note.color;
+}
+
 function initNotes() {
   const container = document.getElementById('notes-container');
   const addNoteBtn = document.getElementById('open-add-note-modal');
@@ -1060,29 +1187,53 @@ function initNotes() {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-emoji">📔</div>
-          <p>Seu caderninho está vazio.<br>Clique em "Anotar" para guardar seus pensamentos e ideias!</p>
+          <p>Seu caderninho está vazio.<br>Clique em "+ Anotar" para guardar seus pensamentos e ideias!</p>
         </div>
       `;
       return;
     }
 
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'nude';
+
     state.notes.forEach(note => {
       const card = document.createElement('div');
-      card.className = 'note-card';
-      card.style.backgroundColor = note.color || '#F5EBE1';
+      const actualColor = resolveNoteColor(note, currentTheme);
+      const isDark = isColorDark(actualColor);
+
+      card.className = `note-card ${isDark ? 'dark-note' : 'light-note'}`;
+      card.style.backgroundColor = actualColor;
 
       card.innerHTML = `
         <div class="note-card-top">
-          <span class="note-card-date">${note.date || 'Hoje'}</span>
-          <button class="action-icon-btn delete delete-note-btn" title="Excluir nota">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-          </button>
+          <span class="note-card-date">${escapeHTML(note.date || 'Hoje')}</span>
+          <div class="note-card-actions">
+            <button class="action-icon-btn edit-note-btn" title="Editar anotação">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            </button>
+            <button class="action-icon-btn delete delete-note-btn" title="Excluir nota">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+          </div>
         </div>
         <h4>${escapeHTML(note.title)}</h4>
         <p>${escapeHTML(note.content)}</p>
       `;
 
-      card.querySelector('.delete-note-btn').addEventListener('click', () => {
+      // Click edit button
+      card.querySelector('.edit-note-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openEditNoteModal(note);
+      });
+
+      // Click card itself to edit
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.delete-note-btn') || e.target.closest('.edit-note-btn')) return;
+        openEditNoteModal(note);
+      });
+
+      // Click delete button
+      card.querySelector('.delete-note-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
         if (confirm(`Excluir a nota "${note.title}"?`)) {
           state.notes = state.notes.filter(n => n.id !== note.id);
           saveData(STORAGE_KEYS.NOTES, state.notes);
@@ -1096,7 +1247,45 @@ function initNotes() {
     });
   }
 
+  renderNotesUI = renderNotes;
+
+  function openEditNoteModal(note) {
+    const modalTitle = document.getElementById('modal-note-title');
+    const submitBtn = document.getElementById('note-submit-btn');
+    const editIdInput = document.getElementById('note-edit-id');
+    const titleInput = document.getElementById('note-title-input');
+    const contentInput = document.getElementById('note-content-input');
+
+    if (modalTitle) modalTitle.textContent = 'Editar Anotação 📝';
+    if (submitBtn) submitBtn.textContent = 'Salvar Alterações ✨';
+    if (editIdInput) editIdInput.value = note.id;
+    if (titleInput) titleInput.value = note.title;
+    if (contentInput) contentInput.value = note.content;
+
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'nude';
+    updateNoteColorPicker(currentTheme);
+
+    const actualColor = resolveNoteColor(note, currentTheme);
+    const radio = document.querySelector(`input[name="note-bg"][value="${actualColor}"]`);
+    if (radio) {
+      radio.checked = true;
+    }
+
+    openModal('modal-note');
+  }
+
   addNoteBtn.addEventListener('click', () => {
+    const modalTitle = document.getElementById('modal-note-title');
+    const submitBtn = document.getElementById('note-submit-btn');
+    const editIdInput = document.getElementById('note-edit-id');
+
+    if (modalTitle) modalTitle.textContent = 'Nova Anotação 📝';
+    if (submitBtn) submitBtn.textContent = 'Guardar Nota ✨';
+    if (editIdInput) editIdInput.value = '';
+    noteForm.reset();
+
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'nude';
+    updateNoteColorPicker(currentTheme);
     openModal('modal-note');
   });
 
@@ -1104,9 +1293,31 @@ function initNotes() {
     e.preventDefault();
     const title = document.getElementById('note-title-input').value.trim();
     const content = document.getElementById('note-content-input').value.trim();
-    const color = document.querySelector('input[name="note-bg"]:checked')?.value || '#F5EBE1';
+    const editId = document.getElementById('note-edit-id')?.value;
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'nude';
+    const fallbackColor = currentTheme === 'ruby' ? '#3D050D' : (currentTheme === 'wine' ? '#2D1328' : '#F5EBE1');
+    const color = document.querySelector('input[name="note-bg"]:checked')?.value || fallbackColor;
 
     if (!title || !content) return;
+
+    if (editId) {
+      const existing = state.notes.find(n => n.id === editId);
+      if (existing) {
+        existing.title = title;
+        existing.content = content;
+        existing.color = color;
+        saveData(STORAGE_KEYS.NOTES, state.notes);
+        api.saveNote(existing);
+        renderNotes();
+        closeModal('modal-note');
+        noteForm.reset();
+        if (document.getElementById('note-edit-id')) {
+          document.getElementById('note-edit-id').value = '';
+        }
+        showToast('Anotação atualizada com sucesso! ✨');
+        return;
+      }
+    }
 
     const newNote = {
       id: 'note-' + Date.now(),
@@ -1122,6 +1333,9 @@ function initNotes() {
     renderNotes();
     closeModal('modal-note');
     noteForm.reset();
+    if (document.getElementById('note-edit-id')) {
+      document.getElementById('note-edit-id').value = '';
+    }
     showToast('Anotação guardada no caderninho! 📔✨');
   });
 
@@ -1189,10 +1403,37 @@ function initModals() {
   });
 
   // Settings modal open
-  document.getElementById('open-settings-btn').addEventListener('click', () => {
+  function prepareSettingsModal() {
     document.getElementById('settings-name-input').value = state.profile.name || 'Laylla';
     document.getElementById('settings-status-input').value = state.profile.status || '';
+    const currentTheme = state.profile.theme || localStorage.getItem('laylla_theme') || 'nude';
+    const themeRadio = document.querySelector(`input[name="settings-theme"][value="${currentTheme}"]`);
+    if (themeRadio) themeRadio.checked = true;
+    if (typeof updateNotificationStatus === 'function') {
+      updateNotificationStatus();
+    }
+  }
+
+  document.getElementById('open-settings-btn').addEventListener('click', () => {
+    prepareSettingsModal();
     openModal('modal-settings');
+  });
+
+  // Live theme preview when radio changed or card clicked
+  document.querySelectorAll('input[name="settings-theme"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      applyTheme(e.target.value);
+    });
+  });
+
+  document.querySelectorAll('.theme-card-option').forEach(card => {
+    card.addEventListener('click', () => {
+      const radio = card.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = true;
+        applyTheme(radio.value);
+      }
+    });
   });
 
   // Trigger file upload from settings
@@ -1215,13 +1456,31 @@ function initModals() {
     state.profile.name = document.getElementById('settings-name-input').value.trim() || 'Laylla';
     state.profile.status = document.getElementById('settings-status-input').value.trim() || 'Hoje é um dia lindo para brilhar 🌸';
 
+    const selectedTheme = document.querySelector('input[name="settings-theme"]:checked')?.value || 'nude';
+    state.profile.theme = selectedTheme;
+    applyTheme(selectedTheme);
+
+    const notifToggle = document.getElementById('settings-notifications-toggle');
+    state.profile.notificationsEnabled = !!notifToggle?.checked;
+
     saveData(STORAGE_KEYS.PROFILE, state.profile);
-    api.saveProfile({ name: state.profile.name, status: state.profile.status });
+    api.saveProfile({
+      name: state.profile.name,
+      status: state.profile.status,
+      theme: state.profile.theme,
+      notificationsEnabled: state.profile.notificationsEnabled
+    });
     document.getElementById('user-display-name').textContent = `Olá, ${state.profile.name} ✨`;
     document.getElementById('user-status-text').textContent = `"${state.profile.status}"`;
 
     closeModal('modal-settings');
-    showToast('Configurações salvas com sucesso! 💖');
+    const themeLabels = {
+      nude: 'Nude & Rosé 🌸',
+      wine: 'Dark Wine & Plum 🍷',
+      ruby: 'Ruby Glassmorphism 💎'
+    };
+    const themeLabel = themeLabels[selectedTheme] || 'Nude & Rosé 🌸';
+    showToast(`Configurações salvas! Tema ${themeLabel} ativo 💕`);
   });
 }
 
@@ -1314,4 +1573,247 @@ function escapeHTML(str) {
       '"': '&quot;'
     }[tag] || tag)
   );
+}
+
+// ==========================================
+// 9. SERVICE WORKER & PWA INSTALLATION
+// ==========================================
+let deferredInstallPrompt = null;
+
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => {
+        console.log('Service Worker ativo com sucesso ✨:', reg.scope);
+      })
+      .catch(err => {
+        console.warn('Aviso de Service Worker:', err);
+      });
+  }
+}
+
+function initPWAInstall() {
+  const installBtn = document.getElementById('install-pwa-btn');
+  const iosHint = document.getElementById('ios-install-hint');
+
+  // Detect iOS & Standalone
+  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+  if (isIos && !isStandalone && iosHint) {
+    iosHint.style.display = 'block';
+  }
+
+  // Capture beforeinstallprompt for Android, Chrome, Edge
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if (installBtn) {
+      installBtn.style.display = 'inline-flex';
+    }
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (isStandalone) {
+        showToast('O app já está instalado na tela inicial! 💕');
+        return;
+      }
+
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const { outcome } = await deferredInstallPrompt.userChoice;
+        if (outcome === 'accepted') {
+          showToast('App instalado na tela inicial com sucesso! 🎉📲');
+          deferredInstallPrompt = null;
+        }
+      } else if (isIos) {
+        if (iosHint) {
+          iosHint.style.display = 'block';
+          iosHint.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        showToast('No iPhone: toque em Compartilhar ⬆️ e selecione "Adicionar à Tela de Início" 📲');
+      } else {
+        showToast('No navegador: abra o menu (3 pontinhos) e clique em "Instalar Aplicativo" 📲');
+      }
+    });
+  }
+}
+
+// ==========================================
+// 10. NOTIFICAÇÕES & LEMBRETES DE COMPROMISSOS
+// ==========================================
+const notifiedEventIds = new Set();
+
+function updateNotificationStatus() {
+  const badge = document.getElementById('notification-status-badge');
+  const icon = document.getElementById('notification-status-icon');
+  const text = document.getElementById('notification-status-text');
+  const toggle = document.getElementById('settings-notifications-toggle');
+
+  if (!badge || !icon || !text) return;
+
+  if (!('Notification' in window)) {
+    icon.textContent = '❌';
+    text.textContent = 'Este navegador não suporta notificações';
+    badge.className = 'notification-badge-row blocked';
+    if (toggle) toggle.disabled = true;
+    return;
+  }
+
+  if (Notification.permission === 'denied') {
+    icon.textContent = '⚠️';
+    text.textContent = 'Notificações bloqueadas nas permissões do navegador';
+    badge.className = 'notification-badge-row blocked';
+    if (toggle) toggle.checked = false;
+    return;
+  }
+
+  if (state.profile.notificationsEnabled && Notification.permission === 'granted') {
+    icon.textContent = '🟢';
+    text.textContent = 'Lembretes ativos! Avisaremos no horário dos compromissos ✨';
+    badge.className = 'notification-badge-row active';
+    if (toggle) toggle.checked = true;
+  } else {
+    icon.textContent = '⚪';
+    text.textContent = 'Lembretes desativados';
+    badge.className = 'notification-badge-row';
+    if (toggle) toggle.checked = false;
+  }
+}
+
+function initNotifications() {
+  const toggle = document.getElementById('settings-notifications-toggle');
+  const testBtn = document.getElementById('test-notification-btn');
+
+  if (toggle) {
+    toggle.checked = !!state.profile.notificationsEnabled && typeof Notification !== 'undefined' && Notification.permission === 'granted';
+    updateNotificationStatus();
+
+    toggle.addEventListener('change', async () => {
+      if (!('Notification' in window)) {
+        alert('Seu navegador não suporta notificações.');
+        toggle.checked = false;
+        return;
+      }
+
+      if (toggle.checked) {
+        let perm = Notification.permission;
+        if (perm !== 'granted') {
+          perm = await Notification.requestPermission();
+        }
+
+        if (perm === 'granted') {
+          state.profile.notificationsEnabled = true;
+          saveData(STORAGE_KEYS.PROFILE, state.profile);
+          api.saveProfile({ notificationsEnabled: true });
+          updateNotificationStatus();
+          sendDesktopNotification(
+            'Lembretes Ativados! 🔔🌸',
+            'Prontinho, gatinha! Você receberá avisos dos seus compromissos no horário certo 💕'
+          );
+          showToast('Notificações e lembretes ativados com sucesso! 🔔');
+        } else {
+          state.profile.notificationsEnabled = false;
+          saveData(STORAGE_KEYS.PROFILE, state.profile);
+          toggle.checked = false;
+          updateNotificationStatus();
+          showToast('Permissão de notificação não autorizada.');
+        }
+      } else {
+        state.profile.notificationsEnabled = false;
+        saveData(STORAGE_KEYS.PROFILE, state.profile);
+        api.saveProfile({ notificationsEnabled: false });
+        updateNotificationStatus();
+        showToast('Lembretes desativados.');
+      }
+    });
+  }
+
+  if (testBtn) {
+    testBtn.addEventListener('click', async () => {
+      if (!('Notification' in window)) {
+        alert('Seu navegador não suporta notificações.');
+        return;
+      }
+
+      if (Notification.permission !== 'granted') {
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') {
+          alert('Por favor, autorize as notificações para receber lembretes!');
+          return;
+        }
+      }
+
+      sendDesktopNotification(
+        'Lembrete da Gatinha ✨',
+        'Olá Laylla! O sistema de lembretes está funcionando perfeitamente no seu aparelho 🌸💕'
+      );
+      showToast('Notificação de teste enviada! 🔔');
+    });
+  }
+
+  // Check reminders every 30 seconds
+  setInterval(checkUpcomingReminders, 30000);
+  checkUpcomingReminders();
+}
+
+function sendDesktopNotification(title, body) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') {
+    return;
+  }
+
+  const options = {
+    body: body,
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    vibrate: [200, 100, 200]
+  };
+
+  try {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.ready.then(reg => {
+        reg.showNotification(title, options);
+      }).catch(() => {
+        new Notification(title, options);
+      });
+    } else {
+      new Notification(title, options);
+    }
+  } catch (err) {
+    try {
+      new Notification(title, options);
+    } catch (e) {
+      console.warn('Erro ao disparar notificação:', e);
+    }
+  }
+}
+
+function checkUpcomingReminders() {
+  if (!state.profile.notificationsEnabled || typeof Notification === 'undefined' || Notification.permission !== 'granted') {
+    return;
+  }
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const todayStr = `${year}-${month}-${day}`;
+
+  const currentHour = String(now.getHours()).padStart(2, '0');
+  const currentMinute = String(now.getMinutes()).padStart(2, '0');
+  const currentTimeStr = `${currentHour}:${currentMinute}`;
+
+  if (!state.events || !Array.isArray(state.events)) return;
+
+  state.events.forEach(evt => {
+    // If event is for today, matching current minute, and not yet notified
+    if (evt.date === todayStr && evt.time === currentTimeStr && !notifiedEventIds.has(evt.id)) {
+      notifiedEventIds.add(evt.id);
+      sendDesktopNotification(
+        `Lembrete: ${evt.title} ⏰`,
+        `Horário: ${evt.time} • ${evt.category || 'Compromisso'}\n${evt.notes || 'Hora de brilhar! ✨'}`
+      );
+    }
+  });
 }

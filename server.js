@@ -121,15 +121,17 @@ app.get('/api/data', async (req, res) => {
 // ==========================================
 app.post('/api/profile', async (req, res) => {
   try {
-    const { name, status, mood } = req.body;
+    const { name, status, mood, theme, notificationsEnabled } = req.body;
     await pool.query(`
       UPDATE laylla_profile
       SET name = COALESCE($1, name),
           status = COALESCE($2, status),
           mood = COALESCE($3, mood),
+          theme = COALESCE($4, theme),
+          notifications_enabled = COALESCE($5, notifications_enabled),
           updated_at = CURRENT_TIMESTAMP
       WHERE id = 'default';
-    `, [name, status, mood]);
+    `, [name, status, mood, theme, notificationsEnabled]);
 
     res.json({ success: true, message: 'Perfil atualizado no banco!' });
   } catch (err) {
