@@ -881,12 +881,23 @@ function initHabits() {
   const resetBtn = document.getElementById('reset-water-btn');
   const selfCareList = document.getElementById('selfcare-list');
 
-  // Check if water tracker is from today; if not, reset for the new day
+  // Check if habits tracker is from today; if not, automatically reset daily checkmarks for the new day!
   const todayStr = getTodayDateString();
-  if (state.habits.waterDate !== todayStr) {
+  if (state.habits.lastActiveDate !== todayStr || state.habits.waterDate !== todayStr) {
+    state.habits.lastActiveDate = todayStr;
     state.habits.waterDate = todayStr;
     state.habits.waterCups = 0;
+
+    // Daily reset: uncheck self-care and workout checklists for a fresh start each day
+    if (state.habits.selfCare && Array.isArray(state.habits.selfCare)) {
+      state.habits.selfCare.forEach(item => { item.done = false; });
+    }
+    if (state.habits.gym && Array.isArray(state.habits.gym.checklist)) {
+      state.habits.gym.checklist.forEach(item => { item.done = false; });
+    }
+
     saveData(STORAGE_KEYS.HABITS, state.habits);
+    api.saveHabits(state.habits);
   }
 
   function renderWater() {
@@ -1192,6 +1203,34 @@ function initHabits() {
       api.saveHabits(state.habits);
       renderGym();
       showToast('Frequência da semana zerada para um novo ciclo!');
+    });
+  }
+
+  // Reset self-care checklist manually
+  const resetSelfCareBtn = document.getElementById('reset-selfcare-btn');
+  if (resetSelfCareBtn) {
+    resetSelfCareBtn.addEventListener('click', () => {
+      if (state.habits.selfCare) {
+        state.habits.selfCare.forEach(item => { item.done = false; });
+        saveData(STORAGE_KEYS.HABITS, state.habits);
+        api.saveHabits(state.habits);
+        renderSelfCare();
+        showToast('Rituais desmarcados para um novo ciclo de carinho! 🌸');
+      }
+    });
+  }
+
+  // Reset gym items checklist manually
+  const resetGymItemsBtn = document.getElementById('reset-gym-items-btn');
+  if (resetGymItemsBtn) {
+    resetGymItemsBtn.addEventListener('click', () => {
+      if (state.habits.gym && state.habits.gym.checklist) {
+        state.habits.gym.checklist.forEach(item => { item.done = false; });
+        saveData(STORAGE_KEYS.HABITS, state.habits);
+        api.saveHabits(state.habits);
+        renderGym();
+        showToast('Checklist de treino desmarcado para o próximo treino! 💪✨');
+      }
     });
   }
 

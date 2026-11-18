@@ -264,6 +264,7 @@
                       <h4>Checklist de Bem-estar ✨</h4>
                       <p>Rituais diários de carinho</p>
                     </div>
+                    <button class="small-text-btn" id="reset-selfcare-btn" title="Desmarcar todos para um novo dia">Desmarcar todos</button>
                   </div>
                   <div class="self-care-checklist" id="selfcare-list">
                     <!-- Dynamically populated checklist -->
@@ -323,7 +324,10 @@
 
                   <!-- Checklist de Treino -->
                   <div class="gym-section-block">
-                    <span class="gym-block-label">Checklist de Academia:</span>
+                    <div class="gym-week-header">
+                      <span class="gym-block-label">Checklist de Academia:</span>
+                      <button class="small-text-btn" id="reset-gym-items-btn" title="Desmarcar tarefas do treino">Desmarcar treino</button>
+                    </div>
                     <div class="gym-checklist-items" id="gym-checklist-container">
                       <!-- Rendered via JS -->
                     </div>
