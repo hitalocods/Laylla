@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=3.5">
+  <link rel="stylesheet" href="style.css?v=3.6">
 </head>
 <body>
   <!-- App Container (Responsive wrapper: Phone, Tablet & Desktop) -->
@@ -137,6 +137,11 @@
                   <button class="cal-nav-btn" id="next-month-btn" aria-label="Próximo mês">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
                   </button>
+                </div>
+
+                <!-- 12-Month Quick Selector Bar -->
+                <div class="cal-months-bar" id="cal-months-bar">
+                  <!-- Rendered via JS: Jan, Fev, Mar, Abr, Mai, Jun, Jul, Ago, Set, Out, Nov, Dez -->
                 </div>
 
                 <!-- Days of Week Header -->
@@ -677,6 +682,6 @@
   <!-- Toast Notification element -->
   <div class="toast-notification" id="app-toast"></div>
 
-  <script src="app.js?v=3.5"></script>
+  <script src="app.js?v=3.6"></script>
 </body>
 </html>

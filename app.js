@@ -516,6 +516,10 @@ function initProfile() {
 // ==========================================
 // 2. CALENDAR & SCHEDULE
 // ==========================================
+let calendarInitialized = false;
+let renderCalendarUI = null;
+let renderScheduleUI = null;
+
 function initCalendar() {
   const monthYearLabel = document.getElementById('cal-month-year');
   const prevMonthBtn = document.getElementById('prev-month-btn');
@@ -523,17 +527,52 @@ function initCalendar() {
   const todayShortcut = document.getElementById('cal-today-shortcut');
   const daysGrid = document.getElementById('calendar-days-grid');
   const eventDateInput = document.getElementById('event-date-input');
+  const monthsBar = document.getElementById('cal-months-bar');
 
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ];
 
+  const monthShortNames = [
+    'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+    'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
+  ];
+
+  function renderMonthPills() {
+    if (!monthsBar) return;
+    const currentMonth = state.calendarCurrentDate.getMonth();
+    monthsBar.innerHTML = '';
+
+    monthShortNames.forEach((shortName, index) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = `month-chip ${index === currentMonth ? 'active' : ''}`;
+      chip.textContent = shortName;
+      chip.title = monthNames[index];
+
+      chip.addEventListener('click', (e) => {
+        e.preventDefault();
+        const year = state.calendarCurrentDate.getFullYear();
+        state.calendarCurrentDate = new Date(year, index, 1);
+        renderCalendar();
+      });
+
+      monthsBar.appendChild(chip);
+    });
+
+    const activeChip = monthsBar.querySelector('.month-chip.active');
+    if (activeChip) {
+      activeChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }
+
   function renderCalendar() {
     const year = state.calendarCurrentDate.getFullYear();
     const month = state.calendarCurrentDate.getMonth();
 
     monthYearLabel.textContent = `${monthNames[month]} ${year}`;
+    renderMonthPills();
 
     // First day of month & total days
     const firstDayIndex = new Date(year, month, 1).getDay();
@@ -603,13 +642,26 @@ function initCalendar() {
     }
   }
 
+  renderCalendarUI = renderCalendar;
+  renderScheduleUI = renderDaySchedule;
+
+  renderCalendar();
+  renderDaySchedule();
+
+  if (calendarInitialized) return;
+  calendarInitialized = true;
+
   prevMonthBtn.addEventListener('click', () => {
-    state.calendarCurrentDate.setMonth(state.calendarCurrentDate.getMonth() - 1);
+    const y = state.calendarCurrentDate.getFullYear();
+    const m = state.calendarCurrentDate.getMonth();
+    state.calendarCurrentDate = new Date(y, m - 1, 1);
     renderCalendar();
   });
 
   nextMonthBtn.addEventListener('click', () => {
-    state.calendarCurrentDate.setMonth(state.calendarCurrentDate.getMonth() + 1);
+    const y = state.calendarCurrentDate.getFullYear();
+    const m = state.calendarCurrentDate.getMonth();
+    state.calendarCurrentDate = new Date(y, m + 1, 1);
     renderCalendar();
   });
 
@@ -620,9 +672,6 @@ function initCalendar() {
     renderDaySchedule();
     showToast('Voltando para hoje ✨');
   });
-
-  renderCalendar();
-  renderDaySchedule();
 
   // Set default date for new event modal to currently selected date
   document.getElementById('open-add-event-modal').addEventListener('click', () => {
@@ -737,7 +786,8 @@ function renderDaySchedule() {
         saveData(STORAGE_KEYS.EVENTS, state.events);
         api.deleteEvent(evt.id);
         renderDaySchedule();
-        initCalendar(); // update calendar dots
+        if (typeof renderCalendarUI === 'function') renderCalendarUI();
+        else initCalendar(); // update calendar dots
         showToast('Compromisso removido.');
       }
     });
