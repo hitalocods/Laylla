@@ -7,8 +7,8 @@
   
   <!-- Favicon & PWA Theme -->
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/svg+xml" href="icon.svg">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <meta name="theme-color" content="#44142C">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=3.2">
+  <link rel="stylesheet" href="style.css?v=3.5">
 </head>
 <body>
   <!-- App Container (Responsive wrapper: Phone, Tablet & Desktop) -->
@@ -34,7 +34,7 @@
         <div class="profile-card">
           <div class="avatar-wrapper">
             <div class="avatar-ring">
-              <img id="user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23E3D5CA'/%3E%3Cpath d='M50 48c7.7 0 14-6.3 14-14s-6.3-14-14-14-14 6.3-14 14 6.3 14 14 14zm0 6c-11.7 0-26 5.8-26 17.5V78h52v-6.5C76 59.8 61.7 54 50 54z' fill='%23D7BDB0'/%3E%3Ctext x='50' y='65' font-size='22' text-anchor='middle' fill='%235A4A42'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E" alt="Foto da Laylla">
+              <img id="user-avatar" src="laylla-photo.png" alt="Foto da Laylla">
             </div>
             <label for="avatar-input" class="change-photo-badge" title="Mudar minha foto">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
@@ -196,7 +196,7 @@
 
                 <!-- Quick Add Task -->
                 <div class="quick-add-task-box">
-                  <input type="text" id="quick-task-input" placeholder="O que você precisa fazer, gatinha?">
+                  <input type="text" id="quick-task-input" placeholder="O que você precisa fazer hoje? ✨">
                   <div class="quick-add-actions">
                     <select id="quick-task-category">
                       <option value="hoje">🌸 Hoje</option>
@@ -236,7 +236,7 @@
           <section id="view-habits" class="view-panel">
             <div class="habits-header-card">
               <h3>Auto-cuidado, Hábitos & Treino 🧖‍♀️🏋️‍♀️</h3>
-              <p>Cuidando do corpo, da mente e da saúde da gatinha todos os dias.</p>
+              <p>Cuidando do corpo, da mente e da sua saúde todos os dias ✨</p>
             </div>
 
             <div class="habits-view-split">
@@ -247,7 +247,7 @@
                 <div class="habit-widget water-widget">
                   <div class="habit-widget-top">
                     <div class="habit-info">
-                      <h4>Hidratação da Gatinha 💧</h4>
+                      <h4>Hidratação Diária 💧</h4>
                       <p id="water-intake-counter">Meta: 2000ml (0/8 copos)</p>
                     </div>
                     <button class="small-text-btn" id="reset-water-btn">Zerar hoje</button>
@@ -296,7 +296,7 @@
                       <h4>Checklist de Academia & Treino 🏋️‍♀️✨</h4>
                       <p id="gym-streak-summary">Meta: 4 treinos na semana (1/4 concluídos)</p>
                     </div>
-                    <span class="gym-badge-tag">Gatinha Fitness 🔥</span>
+                    <span class="gym-badge-tag">Modo Treino 🔥</span>
                   </div>
 
                   <!-- Foco do Treino de Hoje -->
@@ -520,7 +520,7 @@
       </div>
       <form id="form-settings" class="modal-form">
         <div class="form-group">
-          <label for="settings-name-input">Nome da Gatinha</label>
+          <label for="settings-name-input">Seu Nome / Apelido</label>
           <input type="text" id="settings-name-input" value="Laylla">
         </div>
 
@@ -574,6 +574,21 @@
                 <div class="theme-card-info">
                   <strong>💎 Ruby Glass</strong>
                   <small>Efeito vidro, preto & rubi vibrante</small>
+                </div>
+              </div>
+            </label>
+
+            <label class="theme-card-option" data-theme-val="rock">
+              <input type="radio" name="settings-theme" value="rock">
+              <div class="theme-card-preview theme-rock-preview">
+                <div class="theme-swatch-bar">
+                  <span style="background:#06080C;"></span>
+                  <span style="background:#1E293B;"></span>
+                  <span style="background:#00E5FF;"></span>
+                </div>
+                <div class="theme-card-info">
+                  <strong>⚡ Rock & Metal</strong>
+                  <small>Linkin Park & A7X: Dark Titanium & Neon Cyan</small>
                 </div>
               </div>
             </label>
@@ -662,6 +677,6 @@
   <!-- Toast Notification element -->
   <div class="toast-notification" id="app-toast"></div>
 
-  <script src="app.js?v=3.2"></script>
+  <script src="app.js?v=3.5"></script>
 </body>
 </html>

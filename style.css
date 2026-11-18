@@ -229,6 +229,79 @@
   --input-bg: rgba(22, 2, 6, 0.88);
 }
 
+[data-theme="rock"] {
+  --theme-id: "rock";
+  --color-rose-nude: #00E5FF; /* Linkin Park Electric Cyan */
+  --color-latte: #1E293B;     /* Titanium Steel */
+  --color-cream: #0F172A;     /* Dark Slate */
+  --color-taupe: #1E222D;     /* Graphite */
+  --color-pearl: #0B0E14;     /* Deep Void Black */
+
+  /* Text and contrast */
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;  /* Silver Slate */
+  --text-muted: #64748B;
+  --text-inverse: #05070A;
+
+  /* Backgrounds: Dark Carbon Metal with electric cyan and purple storm glows */
+  --bg-body-gradient: radial-gradient(circle at 85% 15%, rgba(0, 229, 255, 0.25) 0%, transparent 45%),
+                      radial-gradient(circle at 12% 85%, rgba(139, 92, 246, 0.28) 0%, transparent 50%),
+                      radial-gradient(circle at 50% 50%, #0F131C 0%, #06080C 100%);
+  --bg-app: rgba(13, 16, 24, 0.88);
+  --bg-sidebar: linear-gradient(180deg, rgba(17, 21, 32, 0.95) 0%, rgba(10, 12, 18, 0.98) 100%);
+  --bg-sidebar-mobile: rgba(13, 16, 24, 0.97);
+  --bg-bottom-nav: rgba(13, 16, 24, 0.97);
+
+  --card-bg: rgba(22, 27, 40, 0.72);
+  --card-bg-subtle: rgba(28, 35, 52, 0.76);
+  --card-tint: rgba(30, 41, 59, 0.65);
+  --card-inner: rgba(10, 13, 20, 0.88);
+  --glass-blur: blur(20px);
+
+  /* Borders & shadows */
+  --border-subtle: rgba(0, 229, 255, 0.22);
+  --border-focus: #00E5FF;
+  --border-app-frame: 1px solid rgba(0, 229, 255, 0.35);
+  --shadow-app-frame: 0 24px 80px rgba(0, 0, 0, 0.92), 0 0 60px rgba(0, 229, 255, 0.22);
+  --shadow-card: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.55);
+  --shadow-hover: 0 14px 40px rgba(0, 229, 255, 0.35);
+  --shadow-pill: 0 4px 18px rgba(0, 229, 255, 0.5);
+
+  --avatar-gradient: linear-gradient(135deg, #00E5FF, #2563EB);
+  --accent-badge-bg: #00E5FF;
+  --accent-badge-border: #05070A;
+
+  --badge-tag-bg: rgba(0, 229, 255, 0.18);
+  --badge-tag-color: #E0F2FE;
+  --badge-tag-border: 1px solid rgba(0, 229, 255, 0.38);
+
+  --btn-primary-bg: linear-gradient(135deg, #00E5FF 0%, #0284C7 100%);
+  --btn-primary-color: #05070A;
+  --btn-primary-shadow: 0 4px 20px rgba(0, 229, 255, 0.55);
+  --btn-secondary-bg: rgba(30, 41, 59, 0.75);
+  --btn-secondary-color: #E0F2FE;
+
+  --cal-today-bg: #0369A1;
+  --cal-today-color: #FFFFFF;
+  --cal-selected-bg: #00E5FF;
+  --cal-selected-color: #05070A;
+
+  --tasks-hero-bg: linear-gradient(135deg, rgba(2, 132, 199, 0.75) 0%, rgba(15, 23, 42, 0.95) 100%);
+  --progress-fill-bg: linear-gradient(90deg, #00E5FF, #38BDF8);
+
+  --icon-btn-bg: rgba(30, 41, 59, 0.85);
+  --icon-btn-color: #E0F2FE;
+  --icon-btn-hover-bg: #00E5FF;
+  --icon-btn-hover-color: #05070A;
+
+  --mood-pill-bg: rgba(20, 26, 38, 0.85);
+  --mood-pill-color: #E0F2FE;
+  --mood-pill-active-bg: linear-gradient(135deg, #00E5FF, #0284C7);
+
+  --input-bg: rgba(10, 13, 20, 0.88);
+}
+
 
 /* Prevent unwanted auto-zoom on mobile inputs and touch delay */
 input[type="text"],
@@ -2292,8 +2365,8 @@ body {
    ===================================================== */
 .theme-cards-picker {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
   margin-top: 8px;
 }
 
@@ -2344,6 +2417,12 @@ body {
   background: #170104;
   color: #FFFFFF;
   border-color: rgba(255, 23, 68, 0.4);
+}
+
+.theme-rock-preview {
+  background: #0B0E14;
+  color: #FFFFFF;
+  border-color: rgba(0, 229, 255, 0.35);
 }
 
 .theme-card-option input[type="radio"]:checked + .theme-card-preview {
@@ -2632,5 +2711,12 @@ body {
 [data-theme="wine"] .note-card {
   border: 1px solid rgba(100, 36, 68, 0.4) !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="rock"] .note-card {
+  border: 1px solid rgba(0, 229, 255, 0.3) !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
 }
 

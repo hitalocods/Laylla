@@ -1,13 +1,14 @@
-const CACHE_NAME = 'laylla-agenda-v3.2';
+const CACHE_NAME = 'laylla-agenda-v3.5';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/style.css?v=3.2',
-  '/app.js?v=3.2',
+  '/style.css?v=3.5',
+  '/app.js?v=3.5',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
-  '/icon.svg'
+  '/apple-touch-icon.png',
+  '/laylla-photo.png'
 ];
 
 self.addEventListener('install', (event) => {

@@ -26,11 +26,12 @@ const DEFAULT_PROFILE = {
 const THEME_NOTE_COLORS = {
   nude: ['#F5EBE1', '#E3D5CA', '#D7BDB0', '#D6CCC2', '#EDEEE9'],
   wine: ['#2D1328', '#44142C', '#5A1B3A', '#1C0D1A', '#381428'],
-  ruby: ['#3D050D', '#5E0815', '#850C1F', '#220307', '#4E0611']
+  ruby: ['#3D050D', '#5E0815', '#850C1F', '#220307', '#4E0611'],
+  rock: ['#121622', '#1A2234', '#0E2838', '#251320', '#1E2530']
 };
 
 function applyTheme(themeName) {
-  if (!['nude', 'wine', 'ruby'].includes(themeName)) {
+  if (!['nude', 'wine', 'ruby', 'rock'].includes(themeName)) {
     themeName = 'nude';
   }
   document.documentElement.setAttribute('data-theme', themeName);
@@ -47,7 +48,8 @@ function applyTheme(themeName) {
   const themeColors = {
     nude: '#D7BDB0',
     wine: '#0C0C14',
-    ruby: '#080002'
+    ruby: '#080002',
+    rock: '#06080C'
   };
   metaTheme.content = themeColors[themeName] || '#D7BDB0';
 
@@ -430,6 +432,8 @@ function initProfile() {
     statusText.textContent = `"${state.profile.status || 'Hoje é um dia lindo para brilhar 🌸'}"`;
     if (state.profile.avatar) {
       avatarImg.src = state.profile.avatar;
+    } else {
+      avatarImg.src = '/laylla-photo.png';
     }
 
     // Set today date in header
@@ -1111,7 +1115,7 @@ function initHabits() {
           api.saveHabits(state.habits);
           renderGym();
           if (gym.weekDays[d.key]) {
-            showToast(`Treino de ${d.label} registrado! Arrasou, gatinha! 💪🔥`);
+            showToast(`Treino de ${d.label} registrado! Arrasou! 💪🔥`);
           }
         });
 
@@ -1301,6 +1305,9 @@ function resolveNoteColor(note, currentTheme) {
     }
     if (currentTheme === 'wine') {
       return note.color === '#E3D5CA' ? '#44142C' : '#2D1328';
+    }
+    if (currentTheme === 'rock') {
+      return note.color === '#E3D5CA' ? '#1A2234' : '#121622';
     }
     return note.color || '#F5EBE1';
   }
@@ -1569,6 +1576,7 @@ function initModals() {
     card.addEventListener('click', () => {
       const radio = card.querySelector('input[type="radio"]');
       if (radio) {
+        document.querySelectorAll('input[name="settings-theme"]').forEach(r => { r.checked = false; });
         radio.checked = true;
         applyTheme(radio.value);
       }
@@ -1616,9 +1624,10 @@ function initModals() {
     const themeLabels = {
       nude: 'Nude & Rosé 🌸',
       wine: 'Dark Wine & Plum 🍷',
-      ruby: 'Ruby Glassmorphism 💎'
+      ruby: 'Ruby Glassmorphism 💎',
+      rock: 'Rock & Metal ⚡'
     };
-    const themeLabel = themeLabels[selectedTheme] || 'Nude & Rosé 🌸';
+    const themeLabel = themeLabels[selectedTheme] || 'Personalizado ✨';
     showToast(`Configurações salvas! Tema ${themeLabel} ativo 💕`);
   });
 }
@@ -1849,7 +1858,7 @@ function initNotifications() {
           updateNotificationStatus();
           sendDesktopNotification(
             'Lembretes Ativados! 🔔🌸',
-            'Prontinho, gatinha! Você receberá avisos dos seus compromissos no horário certo 💕'
+            'Prontinho! Você receberá avisos dos seus compromissos no horário certo ✨'
           );
           showToast('Notificações e lembretes ativados com sucesso! 🔔');
         } else {
@@ -1885,7 +1894,7 @@ function initNotifications() {
       }
 
       sendDesktopNotification(
-        'Lembrete da Gatinha ✨',
+        'Lembrete da Agenda ✨',
         'Olá Laylla! O sistema de lembretes está funcionando perfeitamente no seu aparelho 🌸💕'
       );
       showToast('Notificação de teste enviada! 🔔');
@@ -1906,6 +1915,7 @@ function sendDesktopNotification(title, body) {
     body: body,
     icon: '/icon-192.png',
     badge: '/icon-192.png',
+    image: '/laylla-photo.png',
     vibrate: [200, 100, 200]
   };
 
