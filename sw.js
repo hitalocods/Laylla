@@ -1,9 +1,9 @@
-const CACHE_NAME = 'laylla-agenda-v2';
+const CACHE_NAME = 'laylla-agenda-v3.2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/style.css',
-  '/app.js',
+  '/style.css?v=3.2',
+  '/app.js?v=3.2',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
@@ -32,16 +32,15 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Network-First strategy: Always fetch freshest files from network, fallback to cache offline
 self.addEventListener('fetch', (event) => {
-  // Let API requests bypass the static cache
   if (event.request.url.includes('/api/')) {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request).then((networkResponse) => {
-        // Cache static assets on the fly
+    fetch(event.request)
+      .then((networkResponse) => {
         if (event.request.method === 'GET' && networkResponse.status === 200) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -49,8 +48,10 @@ self.addEventListener('fetch', (event) => {
           });
         }
         return networkResponse;
-      });
-    }).catch(() => caches.match('/index.html'))
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cached) => cached || caches.match('/index.html'));
+      })
   );
 });
 

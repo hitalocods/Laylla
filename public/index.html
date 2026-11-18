@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3.2">
 </head>
 <body>
   <!-- App Container (Responsive wrapper: Phone, Tablet & Desktop) -->
@@ -267,6 +267,15 @@
                   </div>
                   <div class="self-care-checklist" id="selfcare-list">
                     <!-- Dynamically populated checklist -->
+                  </div>
+
+                  <!-- Adicionar item personalizado de bem-estar -->
+                  <div class="gym-add-item-box" style="margin-top: 10px;">
+                    <input type="text" id="selfcare-new-item-input" placeholder="Novo ritual de carinho...">
+                    <button class="pill-btn primary small" id="selfcare-add-item-btn">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <span>Adicionar</span>
+                    </button>
                   </div>
                 </div>
 
@@ -649,6 +658,6 @@
   <!-- Toast Notification element -->
   <div class="toast-notification" id="app-toast"></div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3.2"></script>
 </body>
 </html>

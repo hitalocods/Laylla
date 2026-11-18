@@ -933,17 +933,33 @@ function initHabits() {
     showToast('Contador de água zerado.');
   });
 
+  const selfCareNewItemInput = document.getElementById('selfcare-new-item-input');
+  const selfCareAddItemBtn = document.getElementById('selfcare-add-item-btn');
+
   function renderSelfCare() {
     selfCareList.innerHTML = '';
-    (state.habits.selfCare || DEFAULT_SELFCARE).forEach(item => {
+    if (!state.habits.selfCare) {
+      state.habits.selfCare = JSON.parse(JSON.stringify(DEFAULT_SELFCARE));
+    }
+    state.habits.selfCare.forEach(item => {
       const row = document.createElement('div');
       row.className = `care-item ${item.done ? 'done' : ''}`;
       row.innerHTML = `
-        <span>${escapeHTML(item.text)}</span>
-        <span>${item.done ? '✅' : '⚪'}</span>
+        <div class="care-item-left" style="display: flex; align-items: center; gap: 8px; flex: 1; cursor: pointer;">
+          <span class="care-item-check">${item.done ? '✅' : '⚪'}</span>
+          <span class="care-item-text" title="Clique no lápis para editar">${escapeHTML(item.text)}</span>
+        </div>
+        <div class="care-item-actions" style="display: flex; align-items: center; gap: 4px;">
+          <button class="action-icon-btn edit-care-btn" title="Editar ritual">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+          </button>
+          <button class="action-icon-btn delete delete-care-btn" title="Excluir ritual">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
       `;
 
-      row.addEventListener('click', () => {
+      row.querySelector('.care-item-left').addEventListener('click', () => {
         item.done = !item.done;
         saveData(STORAGE_KEYS.HABITS, state.habits);
         api.saveHabits(state.habits);
@@ -951,7 +967,63 @@ function initHabits() {
         if (item.done) showToast('Cuidado merecido concluído! 🧖‍♀️');
       });
 
+      function editCareItem() {
+        const newText = prompt('Editar ritual de autocuidado:', item.text);
+        if (newText && newText.trim() && newText.trim() !== item.text) {
+          item.text = newText.trim();
+          saveData(STORAGE_KEYS.HABITS, state.habits);
+          api.saveHabits(state.habits);
+          renderSelfCare();
+          showToast('Ritual atualizado! ✨');
+        }
+      }
+
+      row.querySelector('.edit-care-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        editCareItem();
+      });
+
+      row.querySelector('.delete-care-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.habits.selfCare = state.habits.selfCare.filter(i => i.id !== item.id);
+        saveData(STORAGE_KEYS.HABITS, state.habits);
+        api.saveHabits(state.habits);
+        renderSelfCare();
+        showToast('Ritual removido.');
+      });
+
       selfCareList.appendChild(row);
+    });
+  }
+
+  function handleAddSelfCareItem() {
+    if (!selfCareNewItemInput) return;
+    const text = selfCareNewItemInput.value.trim();
+    if (!text) return;
+    if (!state.habits.selfCare) {
+      state.habits.selfCare = JSON.parse(JSON.stringify(DEFAULT_SELFCARE));
+    }
+    state.habits.selfCare.push({
+      id: 'care-' + Date.now(),
+      text,
+      done: false
+    });
+    saveData(STORAGE_KEYS.HABITS, state.habits);
+    api.saveHabits(state.habits);
+    selfCareNewItemInput.value = '';
+    renderSelfCare();
+    showToast('Novo ritual adicionado com carinho! 🌸');
+  }
+
+  if (selfCareAddItemBtn) {
+    selfCareAddItemBtn.addEventListener('click', handleAddSelfCareItem);
+  }
+  if (selfCareNewItemInput) {
+    selfCareNewItemInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAddSelfCareItem();
+      }
     });
   }
 
@@ -1052,12 +1124,33 @@ function initHabits() {
             <div class="custom-checkbox">
               ${item.done ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>` : ''}
             </div>
-            <span class="gym-item-text">${escapeHTML(item.text)}</span>
+            <span class="gym-item-text" title="Clique no lápis para editar">${escapeHTML(item.text)}</span>
           </div>
-          <button class="action-icon-btn delete delete-gym-item-btn" title="Excluir item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
+          <div class="gym-item-actions" style="display: flex; align-items: center; gap: 4px;">
+            <button class="action-icon-btn edit-gym-item-btn" title="Editar item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            </button>
+            <button class="action-icon-btn delete delete-gym-item-btn" title="Excluir item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
         `;
+
+        function editGymItem() {
+          const newText = prompt('Editar item do treino:', item.text);
+          if (newText && newText.trim() && newText.trim() !== item.text) {
+            item.text = newText.trim();
+            saveData(STORAGE_KEYS.HABITS, state.habits);
+            api.saveHabits(state.habits);
+            renderGym();
+            showToast('Item de treino atualizado! 💪');
+          }
+        }
+
+        row.querySelector('.edit-gym-item-btn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          editGymItem();
+        });
 
         row.querySelector('.gym-check-left').addEventListener('click', () => {
           item.done = !item.done;
@@ -1200,23 +1293,30 @@ function initNotes() {
       const actualColor = resolveNoteColor(note, currentTheme);
       const isDark = isColorDark(actualColor);
 
+      // Explicit contrast colors applied directly to DOM
+      const titleColor = isDark ? '#FFFFFF' : '#1A100C';
+      const bodyColor = isDark ? '#FFE6EB' : '#382721';
+      const dateColor = isDark ? 'rgba(255, 255, 255, 0.85)' : '#635149';
+      const btnBg = isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.08)';
+      const btnColor = isDark ? '#FFFFFF' : '#2D231F';
+
       card.className = `note-card ${isDark ? 'dark-note' : 'light-note'}`;
       card.style.backgroundColor = actualColor;
 
       card.innerHTML = `
         <div class="note-card-top">
-          <span class="note-card-date">${escapeHTML(note.date || 'Hoje')}</span>
+          <span class="note-card-date" style="color: ${dateColor} !important; font-weight: 600;">${escapeHTML(note.date || 'Hoje')}</span>
           <div class="note-card-actions">
-            <button class="action-icon-btn edit-note-btn" title="Editar anotação">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            <button class="action-icon-btn edit-note-btn" title="Editar anotação" style="background: ${btnBg} !important; color: ${btnColor} !important;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
             </button>
-            <button class="action-icon-btn delete delete-note-btn" title="Excluir nota">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <button class="action-icon-btn delete delete-note-btn" title="Excluir nota" style="background: ${btnBg} !important; color: ${btnColor} !important;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             </button>
           </div>
         </div>
-        <h4>${escapeHTML(note.title)}</h4>
-        <p>${escapeHTML(note.content)}</p>
+        <h4 style="color: ${titleColor} !important; font-weight: 700; margin-bottom: 6px;">${escapeHTML(note.title)}</h4>
+        <p style="color: ${bodyColor} !important; line-height: 1.5; white-space: pre-wrap; font-weight: 500;">${escapeHTML(note.content)}</p>
       `;
 
       // Click edit button
