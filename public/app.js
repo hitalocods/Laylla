@@ -1768,6 +1768,12 @@ function initPWAInstall() {
         return;
       }
 
+      const isWebView = /WhatsApp|Instagram|FBAN|FBAV|Line/i.test(navigator.userAgent);
+      if (isWebView) {
+        alert('📲 Você está dentro do WhatsApp/Instagram!\n\nPara instalar o app com a foto da Laylla:\n1. Toque nos 3 pontinhos (⋮) no topo\n2. Escolha "Abrir no Chrome" ou "Abrir no Safari"!');
+        return;
+      }
+
       if (deferredInstallPrompt) {
         deferredInstallPrompt.prompt();
         const { outcome } = await deferredInstallPrompt.userChoice;
@@ -1780,9 +1786,9 @@ function initPWAInstall() {
           iosHint.style.display = 'block';
           iosHint.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-        showToast('No iPhone: toque em Compartilhar ⬆️ e selecione "Adicionar à Tela de Início" 📲');
+        alert('🍎 No iPhone / iPad (Safari):\n\n1. Toque no ícone Compartilhar ⬆️ no rodapé do Safari\n2. Role para baixo e toque em "Adicionar à Tela de Início" ➕\n3. Toque em "Adicionar" no topo direito e prontinho!\n\nO app ficará na sua tela de início com a foto da Laylla 💕');
       } else {
-        showToast('No navegador: abra o menu (3 pontinhos) e clique em "Instalar Aplicativo" 📲');
+        alert('📲 Para instalar no Android ou Computador:\n\n1. Toque nos 3 pontinhos (⋮) no canto do seu navegador (Chrome/Edge)\n2. Escolha "Instalar aplicativo" ou "Adicionar à tela inicial" ➕\n3. Toque em "Instalar" e o app ficará direto na tela do seu celular!');
       }
     });
   }
@@ -1802,10 +1808,16 @@ function updateNotificationStatus() {
   if (!badge || !icon || !text) return;
 
   if (!('Notification' in window)) {
-    icon.textContent = '❌';
-    text.textContent = 'Este navegador não suporta notificações';
-    badge.className = 'notification-badge-row blocked';
-    if (toggle) toggle.disabled = true;
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIos) {
+      icon.textContent = '🍎';
+      text.textContent = 'No iPhone: adicione à Tela de Início para ativar';
+    } else {
+      icon.textContent = 'ℹ️';
+      text.textContent = 'Abra no Chrome para receber lembretes';
+    }
+    badge.className = 'notification-badge-row';
+    if (toggle) toggle.disabled = false;
     return;
   }
 
@@ -1830,6 +1842,28 @@ function updateNotificationStatus() {
   }
 }
 
+function showNotificationUnsupportedGuidance() {
+  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isWebView = /WhatsApp|Instagram|FBAN|FBAV|Line/i.test(navigator.userAgent);
+
+  if (isWebView) {
+    alert('📲 Você está dentro do WhatsApp/Instagram!\n\nPara poder instalar o app e receber lembretes na tela:\n1. Toque nos 3 pontinhos (⋮) no canto da tela\n2. Escolha "Abrir no Chrome" ou "Abrir no Safari"!');
+    return;
+  }
+
+  if (isIos) {
+    alert('🍎 No iPhone / iPad (Safari):\nA Apple exige que você adicione o app à tela inicial primeiro para ativar os lembretes na tela!\n\n1. Toque no ícone Compartilhar ⬆️ no rodapé do Safari\n2. Role e toque em "Adicionar à Tela de Início" ➕\n3. Abra o app pela tela inicial do seu iPhone e ative as notificações!');
+    const iosHint = document.getElementById('ios-install-hint');
+    if (iosHint) {
+      iosHint.style.display = 'block';
+      iosHint.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
+  }
+
+  alert('Seu navegador atual não possui suporte nativo a notificações.\n\nRecomendamos abrir no Google Chrome ou Microsoft Edge para receber os lembretes na tela!');
+}
+
 function initNotifications() {
   const toggle = document.getElementById('settings-notifications-toggle');
   const testBtn = document.getElementById('test-notification-btn');
@@ -1840,7 +1874,7 @@ function initNotifications() {
 
     toggle.addEventListener('change', async () => {
       if (!('Notification' in window)) {
-        alert('Seu navegador não suporta notificações.');
+        showNotificationUnsupportedGuidance();
         toggle.checked = false;
         return;
       }
@@ -1881,7 +1915,7 @@ function initNotifications() {
   if (testBtn) {
     testBtn.addEventListener('click', async () => {
       if (!('Notification' in window)) {
-        alert('Seu navegador não suporta notificações.');
+        showNotificationUnsupportedGuidance();
         return;
       }
 

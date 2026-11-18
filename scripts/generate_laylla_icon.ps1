@@ -1,4 +1,4 @@
-﻿Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName System.Drawing
 
 $srcPath = "Captura de tela 2026-11-18 103308.png"
 if (-not (Test-Path $srcPath)) {
